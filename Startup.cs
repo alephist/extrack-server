@@ -12,6 +12,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ExTrackAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using ExTrackAPI.Contracts;
+using ExTrackAPI.Repositories;
+using AutoMapper;
 
 namespace ExTrackAPI
 {
@@ -32,6 +35,8 @@ namespace ExTrackAPI
                 opt.UseNpgsql(Configuration["DataContext:ConnectionString"]);
                 opt.UseSnakeCaseNamingConvention();
             });
+            services.AddScoped<IWrapperRepository, WrapperRepository>();
+            services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddControllers();
         }
 
