@@ -8,6 +8,7 @@ namespace ExTrackAPI.Repositories
     {
         private readonly DataContext _context;
         private ICategoryRepository _category;
+        private ITransactionRepository _transaction;
 
         public WrapperRepository(DataContext context)
         {
@@ -24,6 +25,19 @@ namespace ExTrackAPI.Repositories
                 }
 
                 return _category;
+            }
+        }
+
+        public ITransactionRepository Transaction
+        {
+            get
+            {
+                if (_transaction == null)
+                {
+                    _transaction = new TransactionRepository(_context);
+                }
+
+                return _transaction;
             }
         }
 

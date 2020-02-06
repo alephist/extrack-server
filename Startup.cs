@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using ExTrackAPI.Contracts;
 using ExTrackAPI.Repositories;
 using AutoMapper;
+using Newtonsoft.Json;
 
 namespace ExTrackAPI
 {
@@ -37,7 +38,9 @@ namespace ExTrackAPI
             });
             services.AddScoped<IWrapperRepository, WrapperRepository>();
             services.AddAutoMapper(typeof(Startup).Assembly);
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

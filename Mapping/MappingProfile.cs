@@ -11,6 +11,11 @@ namespace ExTrackAPI.Mapping
             CreateMap<CategoryForCreationDto, Category>();
             CreateMap<Category, CategoryDto>();
             CreateMap<CategoryForUpdateDto, Category>();
+
+            CreateMap<TransactionForCreationDto, Transaction>();
+            CreateMap<Transaction, TransactionDto>();
+            CreateMap<TransactionForUpdateDto, Transaction>();
+            CreateMap<Transaction, TransactionForDetailDto>();
         }
     }
 }
