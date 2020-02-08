@@ -38,6 +38,7 @@ namespace ExTrackAPI
             });
             services.AddScoped<IWrapperRepository, WrapperRepository>();
             services.AddAutoMapper(typeof(Startup).Assembly);
+            services.AddCors();
             services
                 .AddControllers()
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
@@ -50,6 +51,13 @@ namespace ExTrackAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(opt =>
+            {
+                opt.AllowAnyOrigin();
+                opt.AllowAnyMethod();
+                opt.AllowAnyHeader();
+            });
 
             app.UseHttpsRedirection();
 
