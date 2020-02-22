@@ -9,6 +9,7 @@ namespace ExTrackAPI.Repositories
         private readonly DataContext _context;
         private ICategoryRepository _category;
         private ITransactionRepository _transaction;
+        private IStatisticsRepository _statistics;
 
         public WrapperRepository(DataContext context)
         {
@@ -38,6 +39,19 @@ namespace ExTrackAPI.Repositories
                 }
 
                 return _transaction;
+            }
+        }
+
+        public IStatisticsRepository Statistics
+        {
+            get
+            {
+                if (_statistics == null)
+                {
+                    _statistics = new StatisticsRepository(_context);
+                }
+
+                return _statistics;
             }
         }
 

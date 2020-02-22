@@ -6,6 +6,7 @@ namespace ExTrackAPI.Contracts
     {
         ICategoryRepository Category { get; }
         ITransactionRepository Transaction { get; }
+        IStatisticsRepository Statistics { get; }
         Task Save();
     }
 }
