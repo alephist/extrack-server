@@ -10,6 +10,7 @@ namespace ExTrackAPI.Repositories
         private ICategoryRepository _category;
         private ITransactionRepository _transaction;
         private IStatisticsRepository _statistics;
+        private IAuthRepository _auth;
 
         public WrapperRepository(DataContext context)
         {
@@ -52,6 +53,19 @@ namespace ExTrackAPI.Repositories
                 }
 
                 return _statistics;
+            }
+        }
+
+        public IAuthRepository Auth
+        {
+            get
+            {
+                if (_auth == null)
+                {
+                    _auth = new AuthRepository(_context);
+                }
+
+                return _auth;
             }
         }
 
