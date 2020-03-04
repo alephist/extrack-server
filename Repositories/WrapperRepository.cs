@@ -11,6 +11,7 @@ namespace ExTrackAPI.Repositories
         private ITransactionRepository _transaction;
         private IStatisticsRepository _statistics;
         private IAuthRepository _auth;
+        private IUserRepository _user;
 
         public WrapperRepository(DataContext context)
         {
@@ -66,6 +67,19 @@ namespace ExTrackAPI.Repositories
                 }
 
                 return _auth;
+            }
+        }
+
+        public IUserRepository User
+        {
+            get
+            {
+                if (_user == null)
+                {
+                    _user = new UserRepository(_context);
+                }
+
+                return _user;
             }
         }
 

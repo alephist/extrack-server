@@ -19,6 +19,8 @@ namespace ExTrackAPI.Mapping
 
             CreateMap<UserForRegisterDto, User>();
             CreateMap<User, UserDto>();
+            CreateMap<UserForUpdateDto, User>();
+            CreateMap<User, UserForDetailDto>();
         }
     }
 }

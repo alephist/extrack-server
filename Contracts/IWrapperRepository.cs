@@ -8,6 +8,7 @@ namespace ExTrackAPI.Contracts
         ITransactionRepository Transaction { get; }
         IStatisticsRepository Statistics { get; }
         IAuthRepository Auth { get; }
+        IUserRepository User { get; }
         Task Save();
     }
 }
