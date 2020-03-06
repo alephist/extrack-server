@@ -6,6 +6,6 @@ namespace ExTrackAPI.Contracts
 {
     public interface IStatisticsRepository
     {
-        Task<IEnumerable<ChartData>> GetStatisticsByCategory();
+        Task<IEnumerable<ChartData>> GetStatisticsByCategory(int userId);
     }
 }

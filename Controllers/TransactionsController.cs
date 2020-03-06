@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using ExTrackAPI.Contracts;
@@ -10,7 +10,8 @@ using ExTrackAPI.Models;
 
 namespace ExTrackAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class TransactionsController : ControllerBase
     {
@@ -24,9 +25,14 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTransactions()
+        public async Task<IActionResult> GetTransactions(int userId)
         {
-            var transactions = await _repo.Transaction.GetAllTransactions();
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
+            var transactions = await _repo.Transaction.GetAllTransactionsByUser(userId);
 
             var transactionsResult = _mapper.Map<IEnumerable<TransactionForDetailDto>>(transactions);
 
@@ -34,8 +40,13 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpGet("{id}", Name = nameof(GetTransaction))]
-        public async Task<IActionResult> GetTransaction(int id)
+        public async Task<IActionResult> GetTransaction(int userId, int id)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var transactionFromRepo = await _repo.Transaction.GetTransaction(id);
 
             if (transactionFromRepo == null)
@@ -50,21 +61,32 @@ namespace ExTrackAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddTransaction(TransactionForCreationDto transaction)
+        public async Task<IActionResult> AddTransaction(int userId, TransactionForCreationDto transaction)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var transactionEntity = _mapper.Map<Transaction>(transaction);
+            transactionEntity.UserId = userId;
 
             _repo.Transaction.CreateTransaction(transactionEntity);
             await _repo.Save();
 
             var createdTransaction = _mapper.Map<TransactionDto>(transactionEntity);
 
-            return CreatedAtRoute(nameof(GetTransaction), new { id = createdTransaction.Id }, createdTransaction);
+            return CreatedAtRoute(nameof(GetTransaction), new { userId = userId, id = createdTransaction.Id }, createdTransaction);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTransaction(int id, TransactionForUpdateDto transaction)
+        public async Task<IActionResult> UpdateTransaction(int userId, int id, TransactionForUpdateDto transaction)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var transactionFromRepo = await _repo.Transaction.GetTransaction(id);
 
             if (transactionFromRepo == null)
@@ -81,8 +103,13 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTransaction(int id)
+        public async Task<IActionResult> DeleteTransaction(int userId, int id)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var transactionFromRepo = await _repo.Transaction.GetTransaction(id);
 
             if (transactionFromRepo == null)

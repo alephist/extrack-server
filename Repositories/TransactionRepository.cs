@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ExTrackAPI.Contracts;
@@ -20,9 +21,12 @@ namespace ExTrackAPI.Repositories
             Delete(transaction);
         }
 
-        public async Task<IEnumerable<Transaction>> GetAllTransactions()
+        public async Task<IEnumerable<Transaction>> GetAllTransactionsByUser(int userId)
         {
-            return await GetAll().Include(t => t.Category).ToListAsync();
+            return await GetByCondition(t => t.UserId == userId)
+                            .OrderByDescending(t => t.Date)
+                            .Include(t => t.Category)
+                            .ToListAsync();
         }
 
         public async Task<Transaction> GetTransaction(int transactionId)

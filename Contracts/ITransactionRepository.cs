@@ -6,7 +6,7 @@ namespace ExTrackAPI.Contracts
 {
     public interface ITransactionRepository
     {
-        Task<IEnumerable<Transaction>> GetAllTransactions();
+        Task<IEnumerable<Transaction>> GetAllTransactionsByUser(int userId);
         Task<Transaction> GetTransaction(int transactionId);
         void CreateTransaction(Transaction transaction);
         void UpdateTransaction(Transaction transaction);

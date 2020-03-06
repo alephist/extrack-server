@@ -31,9 +31,9 @@ namespace ExTrackAPI.Repositories
             Delete(category);
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategories()
+        public async Task<IEnumerable<Category>> GetAllCategoriesByUser(int userId)
         {
-            return await GetAll().ToListAsync();
+            return await GetByCondition(c => c.UserId == userId).ToListAsync();
         }
 
         public async Task<Category> GetCategory(int categoryId)

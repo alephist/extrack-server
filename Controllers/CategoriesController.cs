@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using ExTrackAPI.Contracts;
@@ -8,7 +10,8 @@ using ExTrackAPI.Models;
 
 namespace ExTrackAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -22,9 +25,14 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetCategories(int userId)
         {
-            var categories = await _repo.Category.GetAllCategories();
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
+            var categories = await _repo.Category.GetAllCategoriesByUser(userId);
 
             var categoriesResult = _mapper.Map<IEnumerable<CategoryDto>>(categories);
 
@@ -32,8 +40,13 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpGet("{id}", Name = nameof(GetCategory))]
-        public async Task<IActionResult> GetCategory(int id)
+        public async Task<IActionResult> GetCategory(int userId, int id)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var categoryFromRepo = await _repo.Category.GetCategory(id);
 
             if (categoryFromRepo == null)
@@ -47,26 +60,37 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCategory(CategoryForCreationDto category)
+        public async Task<IActionResult> AddCategory(int userId, CategoryForCreationDto category)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             if (await _repo.Category.CategoryExist(category))
             {
                 return BadRequest("Category already exists");
             }
 
             var categoryEntity = _mapper.Map<Category>(category);
+            categoryEntity.UserId = userId;
 
             _repo.Category.CreateCategory(categoryEntity);
             await _repo.Save();
 
             var createdCategory = _mapper.Map<CategoryDto>(categoryEntity);
 
-            return CreatedAtRoute(nameof(GetCategory), new { id = createdCategory.Id }, createdCategory);
+            return CreatedAtRoute(nameof(GetCategory), new { userId = userId, id = createdCategory.Id }, createdCategory);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, CategoryForUpdateDto category)
+        public async Task<IActionResult> UpdateCategory(int userId, int id, CategoryForUpdateDto category)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var categoryFromRepo = await _repo.Category.GetCategory(id);
 
             if (categoryFromRepo == null)
@@ -88,8 +112,13 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int userId, int id)
         {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
             var categoryFromRepo = await _repo.Category.GetCategory(id);
 
             if (categoryFromRepo == null)

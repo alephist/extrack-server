@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ExTrackAPI.Contracts;
-//using ExTrackAPI.Models;
 
 namespace ExTrackAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class StatisticsController : ControllerBase
     {
@@ -20,9 +19,14 @@ namespace ExTrackAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStatisticsByCategory()
+        public async Task<IActionResult> GetStatisticsByCategory(int userId)
         {
-            var results = await _repo.Statistics.GetStatisticsByCategory();
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                return Unauthorized();
+            }
+
+            var results = await _repo.Statistics.GetStatisticsByCategory(userId);
 
             return Ok(results);
         }

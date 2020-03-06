@@ -5,6 +5,7 @@ namespace ExTrackAPI.Dto
     public class CategoryForUpdateDto
     {
         [Required]
+        [MinLength(4)]
         public string Name { get; set; }
     }
 }

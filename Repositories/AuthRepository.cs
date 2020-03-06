@@ -15,6 +15,23 @@ namespace ExTrackAPI.Repositories
             return await GetByCondition(u => u.Email == email).AnyAsync();
         }
 
+        public async Task<User> LoginUser(string email, string password)
+        {
+            var user = await GetByCondition(u => u.Email == email).FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (!VerifyPassword(user, password))
+            {
+                return null;
+            }
+
+            return user;
+        }
+
         public void RegisterUser(User user, string password)
         {
             user.PasswordHash = HashPassword(password);
@@ -29,6 +46,11 @@ namespace ExTrackAPI.Repositories
         private string HashPassword(string password)
         {
             return Crypto.HashPassword(password);
+        }
+
+        private bool VerifyPassword(User user, string password)
+        {
+            return Crypto.VerifyHashedPassword(user.PasswordHash, password);
         }
     }
 }

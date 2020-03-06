@@ -6,6 +6,7 @@ namespace ExTrackAPI.Contracts
     public interface IAuthRepository
     {
         void RegisterUser(User user, string password);
+        Task<User> LoginUser(string email, string password);
         Task<bool> UsernameExists(string username);
         Task<bool> EmailExists(string email);
     }

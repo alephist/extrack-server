@@ -7,7 +7,7 @@ namespace ExTrackAPI.Contracts
 {
     public interface ICategoryRepository
     {
-        Task<IEnumerable<Category>> GetAllCategories();
+        Task<IEnumerable<Category>> GetAllCategoriesByUser(int userId);
         Task<Category> GetCategory(int categoryId);
         Task<bool> CategoryExist(CategoryForCreationDto category);
         Task<bool> CategoryExist(CategoryForUpdateDto category);
