@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 using ExTrackAPI.Contracts;
+using ExTrackAPI.Dto;
 
 namespace ExTrackAPI.Controllers
 {
@@ -12,10 +15,12 @@ namespace ExTrackAPI.Controllers
     public class StatisticsController : ControllerBase
     {
         private readonly IWrapperRepository _repo;
+        private readonly IMapper _mapper;
 
-        public StatisticsController(IWrapperRepository repo)
+        public StatisticsController(IWrapperRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -28,7 +33,11 @@ namespace ExTrackAPI.Controllers
 
             var results = await _repo.Statistics.GetStatisticsByCategory(userId);
 
-            return Ok(results);
+            var recentTransactions = await _repo.Statistics.GetRecentTransactions(userId);
+
+            var transactionsToReturn = _mapper.Map<IEnumerable<TransactionForDetailDto>>(recentTransactions);
+
+            return Ok(new { ChartData = results, RecentTransactions = transactionsToReturn });
         }
     }
 }

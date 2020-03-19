@@ -11,6 +11,15 @@ namespace ExTrackAPI.Repositories
     {
         public StatisticsRepository(DataContext context) : base(context) { }
 
+        public async Task<IEnumerable<Transaction>> GetRecentTransactions(int userId)
+        {
+            return await GetByCondition(t => t.UserId == userId)
+                .Include(t => t.Category)
+                .OrderByDescending(t => t.Date)
+                .Take(5)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<ChartData>> GetStatisticsByCategory(int userId)
         {
             return await GetByCondition(t => t.UserId == userId)
