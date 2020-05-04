@@ -59,7 +59,6 @@ namespace ExTrackAPI.Controllers
             return Ok(transactionResult);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> AddTransaction(int userId, TransactionForCreationDto transaction)
         {
