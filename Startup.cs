@@ -1,17 +1,13 @@
-using System.Net;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using ExTrackAPI.Contracts;
+using ExTrackAPI.Extensions;
 using ExTrackAPI.Models;
 using ExTrackAPI.Repositories;
 using Newtonsoft.Json;
@@ -37,22 +33,8 @@ namespace ExTrackAPI
             });
             services.AddScoped<IWrapperRepository, WrapperRepository>();
             services.AddAutoMapper(typeof(Startup).Assembly);
-            services.AddCors();
-            services.AddAuthentication(opt =>
-            {
-                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"])),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true
-                };
-            });
+            services.ConfigureCors();
+            services.ConfigureAuthentication(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"]));
             services
                 .AddControllers()
                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
@@ -66,27 +48,9 @@ namespace ExTrackAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors(opt =>
-            {
-                opt.AllowAnyOrigin();
-                opt.AllowAnyMethod();
-                opt.AllowAnyHeader();
-            });
+            app.UseCors("CorsPolicy");
 
-            app.UseExceptionHandler(builder =>
-            {
-                builder.Run(async context =>
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                    var error = context.Features.Get<IExceptionHandlerFeature>();
-
-                    if (error != null)
-                    {
-                        await context.Response.WriteAsync("Internal Server Error");
-                    }
-                });
-            });
+            app.ConfigureExceptionHandler();
 
             app.UseHttpsRedirection();
 
